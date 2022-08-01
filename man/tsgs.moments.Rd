@@ -6,12 +6,13 @@
 \usage{
 tsgs.moments(
   R,
-  filter = "UBF-DDC",
-  partial.impute = FALSE,
-  tol = 1e-04,
-  maxiter = 150,
-  method = "bisquare",
-  init = "emve_c"
+  filter = control$filter,
+  partial.impute = control$partial.impute,
+  tol = control$tol,
+  maxiter = control$maxiter,
+  method = control$method,
+  init = control$init,
+  control = tsgs.control()
 )
 }
 \arguments{

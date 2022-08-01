@@ -238,19 +238,19 @@ set.portfolio.moments <- set.portfolio.moments_v2 <- function(R,
            },
            
            TSGS = {
-             if(hasArg(filter)) filter=match.call(expand.dots=TRUE)$filter else filter="UBF-DDC"
-             if(hasArg(partial.impute)) partial.impute=match.call(expand.dots=TRUE)$partial.impute else partial.impute=FALSE
-             if(hasArg(tol)) tol=match.call(expand.dots=TRUE)$tol else tol=1e-4
-             if(hasArg(maxiter)) maxiter=match.call(expand.dots=TRUE)$maxiter else maxiter=150
-             if(hasArg(method)) loss=match.call(expand.dots=TRUE)$loss else loss="bisquare"
-             if(hasArg(init)) init=match.call(expand.dots=TRUE)$init else init="emve_c"
-
+             if(hasArg(control)) control=match.call(expand.dots=TRUE)$control else control=tsgs.control()
+             if(hasArg(filter)) filter=match.call(expand.dots=TRUE)$filter else filter=control$filter
+             if(hasArg(partial.impute)) partial.impute=match.call(expand.dots=TRUE)$partial.impute else partial.impute=control$partial.impute
+             if(hasArg(tol)) tol=match.call(expand.dots=TRUE)$tol else tol=control$tol
+             if(hasArg(maxiter)) maxiter=match.call(expand.dots=TRUE)$maxiter else maxiter=control$maxiter
+             if(hasArg(method)) loss=match.call(expand.dots=TRUE)$loss else loss=control$loss
+             if(hasArg(init)) init=match.call(expand.dots=TRUE)$init else init=control$init
              
              
              rbTSGS <- tsgs.moments(R=tmpR, filter=filter,
                                     partial.impute=partial.impute, 
                                     tol=tol, maxiter=maxiter, method=loss,
-                                    init=init)
+                                    init=init, control=control)
            }
         
     ) # end switch for fitting models based on method

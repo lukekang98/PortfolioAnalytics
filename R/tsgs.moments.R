@@ -24,15 +24,47 @@
 #' @export
 #' @examples
 #' 
-tsgs.moments <- function(R, filter="UBF-DDC", 
-                         partial.impute=FALSE, tol=1e-4, maxiter=150, 
-                         method="bisquare",
-                         init="emve_c"){
+tsgs.moments <- function(R, filter=control$filter, 
+                         partial.impute=control$partial.impute, 
+                         tol=control$tol, maxiter=control$maxiter, 
+                         method=control$method,
+                         init=control$init,
+                         control = tsgs.control()){
   
   tsgsRob <- GSE::TSGS(x=R, filter=filter,
-                       partial.impute=partial.impute, tol=tol, maxiter=maxiter, method=method,
+                       partial.impute=partial.impute, tol=tol, 
+                       maxiter=maxiter, method=method,
                        init=init)
   
   return(list(mu=tsgsRob@mu, sig=tsgsRob@S))
+  
+}
+
+
+#' Title
+#'
+#' @param filter 
+#' @param partial.impute 
+#' @param tol 
+#' @param maxiter 
+#' @param method 
+#' @param init 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+tsgs.control <- function(filter=c("UBF-DDC","UBF","DDC","UF"),
+                         partial.impute=FALSE, tol=1e-4, maxiter=150, 
+                         method=c("bisquare","rocke"),
+                         init=c("emve","qc","huber","imputed","emve_c")){
+  filter <- match.arg(filter)
+  method <- match.arg(method)
+  init <- match.arg(init)
+  
+  return(list(filter=filter, partial.impute=partial.impute, 
+              tol=tol, maxiter=as.integer(maxiter), 
+              method=method,init))
+  
   
 }
