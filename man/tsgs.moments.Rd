@@ -6,12 +6,12 @@
 \usage{
 tsgs.moments(
   R,
-  filter = control$filter,
-  partial.impute = control$partial.impute,
-  tol = control$tol,
-  maxiter = control$maxiter,
-  loss = control$loss,
-  init = control$init,
+  filter,
+  partial.impute,
+  tol,
+  maxiter,
+  loss,
+  init,
   control = tsgs.control()
 )
 }

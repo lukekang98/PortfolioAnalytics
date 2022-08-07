@@ -6,17 +6,17 @@
 \usage{
 MCD.robust.moment(
   R,
-  alpha = mcd.control$alpha,
-  nsamp = mcd.control$nsamp,
-  nmini = mcd.control$nmini,
-  kmini = mcd.control$kmini,
-  scalefn = mcd.control$scalefn,
-  maxcsteps = mcd.control$maxcsteps,
+  alpha,
+  nsamp,
+  nmini,
+  kmini,
+  scalefn,
+  maxcsteps,
   initHsets = NULL,
-  seed = mcd.control$seed,
-  tolSolve = mcd.control$tolSolve,
-  wgtFUN = mcd.control$wgtFUN,
-  use.correction = mcd.control$use.correction,
+  seed,
+  tolSolve,
+  wgtFUN,
+  use.correction,
   control = mcd.control()
 )
 }

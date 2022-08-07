@@ -165,7 +165,7 @@ set.portfolio.moments <- set.portfolio.moments_v2 <- function(R,
                                      portfolio, 
                                      momentargs=NULL, 
                                      method=c("sample", "boudt", "black_litterman", "meucci", 
-                                              "robust", "robustMCD", "TSGS"),
+                                              "covRob", "covMCD", "TSGS"),
                                      ...){
   
   if(!hasArg(momentargs) | is.null(momentargs)) momentargs <- list()
@@ -210,13 +210,13 @@ set.portfolio.moments <- set.portfolio.moments_v2 <- function(R,
              if(hasArg(posterior_p)) posterior_p=match.call(expand.dots=TRUE)$posterior_p else posterior_p=rep(1 / nrow(R), nrow(R))
              meucci.model <- meucci.moments(R=tmpR, posterior_p=posterior_p)
            },
-           robust = {
+           covRob = {
              if(hasArg(type)) type=match.call(expand.dots=TRUE)$type else type="auto"
              if(hasArg(tol)) tol=match.call(expand.dots=TRUE)$tol else tol=1e-4
              if(hasArg(maxit)) maxit=match.call(expand.dots=TRUE)$maxit else maxit=50
              rb <- robust.moments(R=tmpR, type=type, maxit=maxit, tol=tol)
            },
-           robustMCD = {
+           covMCD = {
              if(hasArg(mcd.ctrl)) mcd.ctrl=match.call(expand.dots=TRUE)$mcd.ctrl else mcd.ctrl=mcd.control()
              if(hasArg(alpha)) alpha=match.call(expand.dots=TRUE)$alpha else alpha=mcd.ctrl$alpha
              if(hasArg(nsamp)) nsamp=match.call(expand.dots=TRUE)$nsamp else nsamp=mcd.ctrl$nsamp
@@ -231,7 +231,7 @@ set.portfolio.moments <- set.portfolio.moments_v2 <- function(R,
              
              
              rbMCD <- MCD.robust.moment(R, alpha=alpha, nsamp=nsamp, 
-                                        nsamp=nsamp, kmini=kmini,
+                                        nmini=nmini, kmini=kmini,
                                         scalefn=scalefn, maxcsteps=maxcsteps, 
                                         initHsets=initHsets, 
                                         seed=seed, tolSolve=tolSolve, 
@@ -303,10 +303,10 @@ set.portfolio.moments <- set.portfolio.moments_v2 <- function(R,
                       meucci = {
                         if(is.null(momentargs$mu)) momentargs$mu = meucci.model$mu
                       },
-                      robust = {
+                      covRob = {
                         if(is.null(momentargs$mu)) momentargs$mu = rb$rbMu
                       },
-                      robustMCD = {
+                      covMCD = {
                         if(is.null(momentargs$mu)) momentargs$mu = rbMCD$rbMCD.Mu
                       },
                       TSGS = {
@@ -335,11 +335,11 @@ set.portfolio.moments <- set.portfolio.moments_v2 <- function(R,
                         if(is.null(momentargs$mu)) momentargs$mu = meucci.model$mu
                         if(is.null(momentargs$sigma)) momentargs$sigma = meucci.model$sigma
                       },
-                      robust = {
+                      covRob = {
                         if(is.null(momentargs$mu)) momentargs$mu = rb$rbMu
                         if(is.null(momentargs$sigma)) momentargs$sigma = rb$rbSigma
                       },
-                      robustMCD = {
+                      covMCD = {
                         if(is.null(momentargs$mu)) momentargs$mu = rbMCD$rbMCD.Mu
                         if(is.null(momentargs$sigma)) momentargs$sigma = rbMCD$rbMCD.Sig
                       },
@@ -376,13 +376,13 @@ set.portfolio.moments <- set.portfolio.moments_v2 <- function(R,
                         if(is.null(momentargs$m3)) momentargs$m3 = PerformanceAnalytics::M3.MM(tmpR)
                         if(is.null(momentargs$m4)) momentargs$m4 = PerformanceAnalytics::M4.MM(tmpR)
                       },
-                      robust = {
+                      covRob = {
                         if(is.null(momentargs$mu)) momentargs$mu = rb$rbMu
                         if(is.null(momentargs$sigma)) momentargs$sigma = rb$rbSigma
                         if(is.null(momentargs$m3)) momentargs$m3 = PerformanceAnalytics::M3.MM(tmpR)
                         if(is.null(momentargs$m4)) momentargs$m4 = PerformanceAnalytics::M4.MM(tmpR)
                       },
-                      robustMCD = {
+                      covMCD = {
                         if(is.null(momentargs$mu)) momentargs$mu = rbMCD$rbMCD.Mu
                         if(is.null(momentargs$sigma)) momentargs$sigma = rbMCD$rbMCD.Sig
                         if(is.null(momentargs$m3)) momentargs$m3 = PerformanceAnalytics::M3.MM(tmpR)
@@ -432,13 +432,13 @@ set.portfolio.moments <- set.portfolio.moments_v2 <- function(R,
                           if(is.null(momentargs$m3)) momentargs$m3 = PerformanceAnalytics::M3.MM(tmpR)
                           if(is.null(momentargs$m4)) momentargs$m4 = PerformanceAnalytics::M4.MM(tmpR)
                         },
-                        robust = {
+                        covRob = {
                           if(is.null(momentargs$mu)) momentargs$mu = rb$rbMu
                           if(is.null(momentargs$sigma)) momentargs$sigma = rb$rbSigma
                           if(is.null(momentargs$m3)) momentargs$m3 = PerformanceAnalytics::M3.MM(tmpR)
                           if(is.null(momentargs$m4)) momentargs$m4 = PerformanceAnalytics::M4.MM(tmpR)
                         },
-                        robustMCD = {
+                        covMCD = {
                           if(is.null(momentargs$mu)) momentargs$mu = rbMCD$rbMCD.Mu
                           if(is.null(momentargs$sigma)) momentargs$sigma = rbMCD$rbMCD.Sig
                           if(is.null(momentargs$m3)) momentargs$m3 = PerformanceAnalytics::M3.MM(tmpR)
