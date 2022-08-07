@@ -24,12 +24,9 @@
 #' @export
 #' @examples
 #' 
-tsgs.moments <- function(R, filter=control$filter, 
-                         partial.impute=control$partial.impute, 
-                         tol=control$tol, maxiter=control$maxiter, 
-                         loss=control$loss,
-                         init=control$init,
-                         control = tsgs.control()){
+tsgs.moments <- function(R, filter, partial.impute, 
+                         tol, maxiter, loss,
+                         init, control = tsgs.control()){
   
   tsgsRob <- GSE::TSGS(x=R, filter=filter,
                        partial.impute=partial.impute, tol=tol, 
