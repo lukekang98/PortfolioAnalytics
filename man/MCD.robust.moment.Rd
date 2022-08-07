@@ -6,17 +6,18 @@
 \usage{
 MCD.robust.moment(
   R,
-  alpha = 0.75,
-  nsamp = 500,
-  nmini = 300,
-  kmini = 5,
-  scalefn = "hrv2012",
-  maxcsteps = NULL,
+  alpha = mcd.control$alpha,
+  nsamp = mcd.control$nsamp,
+  nmini = mcd.control$nmini,
+  kmini = mcd.control$kmini,
+  scalefn = mcd.control$scalefn,
+  maxcsteps = mcd.control$maxcsteps,
   initHsets = NULL,
-  seed = NULL,
-  tolSolve = NULL,
-  wgtFUN = "01.original",
-  control = robustbase::rrcov.control()
+  seed = mcd.control$seed,
+  tolSolve = mcd.control$tolSolve,
+  wgtFUN = mcd.control$wgtFUN,
+  use.correction = mcd.control$use.correction,
+  control = mcd.control()
 )
 }
 \arguments{
@@ -59,8 +60,10 @@ size h.}
 \item{wgtFUN}{a character string or function, specifying how the weights for 
 the reweighting step should be computed. Default is "01.originalz".}
 
+\item{use.correction}{whether to use finite sample correction factors; defaults to TRUE.}
+
 \item{control}{a list with estimation options - this includes those above provided 
-in the function specification, see robustbase::rrcov.control for 
+in the function specification, see mcd.control() function for 
 the defaults.}
 }
 \value{

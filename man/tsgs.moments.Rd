@@ -10,7 +10,7 @@ tsgs.moments(
   partial.impute = control$partial.impute,
   tol = control$tol,
   maxiter = control$maxiter,
-  method = control$method,
+  loss = control$loss,
   init = control$init,
   control = tsgs.control()
 )
@@ -28,9 +28,9 @@ The default is FALSE.}
 
 \item{maxiter}{maximum number of iterations. Default is 150.}
 
-\item{method}{loss function to use, "bisquare" or "rocke". Default is "bisquare"}
-
 \item{init}{type of initial estimator. Options include "emve", "qc", "huber","imputed","emve_c"}
+
+\item{method}{loss function to use, "bisquare" or "rocke". Default is "bisquare"}
 }
 \value{
 estimators of first and second moments

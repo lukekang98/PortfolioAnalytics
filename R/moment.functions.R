@@ -217,40 +217,44 @@ set.portfolio.moments <- set.portfolio.moments_v2 <- function(R,
              rb <- robust.moments(R=tmpR, type=type, maxit=maxit, tol=tol)
            },
            robustMCD = {
-             if(hasArg(alpha)) alpha=match.call(expand.dots=TRUE)$alpha else alpha=0.5
-             if(hasArg(nsamp)) nsamp=match.call(expand.dots=TRUE)$nsamp else nsamp=500
-             if(hasArg(nmini)) nmini=match.call(expand.dots=TRUE)$nmini else nmini=300
-             if(hasArg(kmini)) kmini=match.call(expand.dots=TRUE)$kmini else kmini=5
-             if(hasArg(scalefn)) scalefn=match.call(expand.dots=TRUE)$scalefn else scalefn='hrv2012'
-             if(hasArg(maxcsteps)) maxcsteps=match.call(expand.dots=TRUE)$maxcsteps else maxcsteps=NULL
-             if(hasArg(initHsets)) initHsets=match.call(expand.dots=TRUE)$initHsets else initHsets=NULL
-             if(hasArg(seed)) seed=match.call(expand.dots=TRUE)$seed else seed=NULL
-             if(hasArg(tolSolve)) tolSolve=match.call(expand.dots=TRUE)$tolSolve else tolSolve=NULL
-             if(hasArg(wgtFUN)) wgtFUN=match.call(expand.dots=TRUE)$wgtFUN else wgtFUN="01.original"
-             if(hasArg(control)) control=match.call(expand.dots=TRUE)$control else control=robustbase::rrcov.control()
+             if(hasArg(mcd.ctrl)) mcd.ctrl=match.call(expand.dots=TRUE)$mcd.ctrl else mcd.ctrl=mcd.control()
+             if(hasArg(alpha)) alpha=match.call(expand.dots=TRUE)$alpha else alpha=mcd.ctrl$alpha
+             if(hasArg(nsamp)) nsamp=match.call(expand.dots=TRUE)$nsamp else nsamp=mcd.ctrl$nsamp
+             if(hasArg(nmini)) nmini=match.call(expand.dots=TRUE)$nmini else nmini=mcd.ctrl$nmini
+             if(hasArg(kmini)) kmini=match.call(expand.dots=TRUE)$kmini else kmini=mcd.ctrl$kmini
+             if(hasArg(scalefn)) scalefn=match.call(expand.dots=TRUE)$scalefn else scalefn=mcd.ctrl$scalefn
+             if(hasArg(maxcsteps)) maxcsteps=match.call(expand.dots=TRUE)$maxcsteps else maxcsteps=mcd.ctrl$maxcsteps
+             if(hasArg(initHsets)) initHsets=match.call(expand.dots=TRUE)$initHsets else initHsets=mcd.ctrl$initHsets
+             if(hasArg(seed)) seed=match.call(expand.dots=TRUE)$seed else seed=mcd.ctrl$seed
+             if(hasArg(tolSolve)) tolSolve=match.call(expand.dots=TRUE)$tolSolve else tolSolve=mcd.ctrl$tolSolve
+             if(hasArg(wgtFUN)) wgtFUN=match.call(expand.dots=TRUE)$wgtFUN else wgtFUN=mcd.ctrl$wgtFUN
              
-             rbMCD <- MCD.robust.moment(R=tmpR,
-                                         alpha=alpha, nsamp=nsamp, nmini=nmini, kmini=kmini,
-                                         scalefn=scalefn, maxcsteps=maxcsteps,
-                                         initHsets=NULL, seed=seed, tolSolve=tolSolve,
-                                         wgtFUN=wgtFUN, control=control)
+             
+             rbMCD <- MCD.robust.moment(R, alpha=alpha, nsamp=nsamp, 
+                                        nsamp=nsamp, kmini=kmini,
+                                        scalefn=scalefn, maxcsteps=maxcsteps, 
+                                        initHsets=initHsets, 
+                                        seed=seed, tolSolve=tolSolve, 
+                                        wgtFUN=wgtFUN, 
+                                        use.correction=use.correction,
+                                        control=mcd.ctrl)
              
            },
            
            TSGS = {
-             if(hasArg(control)) control=match.call(expand.dots=TRUE)$control else control=tsgs.control()
-             if(hasArg(filter)) filter=match.call(expand.dots=TRUE)$filter else filter=control$filter
-             if(hasArg(partial.impute)) partial.impute=match.call(expand.dots=TRUE)$partial.impute else partial.impute=control$partial.impute
-             if(hasArg(tol)) tol=match.call(expand.dots=TRUE)$tol else tol=control$tol
-             if(hasArg(maxiter)) maxiter=match.call(expand.dots=TRUE)$maxiter else maxiter=control$maxiter
-             if(hasArg(method)) loss=match.call(expand.dots=TRUE)$loss else loss=control$loss
-             if(hasArg(init)) init=match.call(expand.dots=TRUE)$init else init=control$init
+             if(hasArg(tsgs.ctrl)) tsgs.ctrl=match.call(expand.dots=TRUE)$tsgs.ctrl else tsgs.ctrl=tsgs.control()
+             if(hasArg(filter)) filter=match.call(expand.dots=TRUE)$filter else filter=tsgs.ctrl$filter
+             if(hasArg(partial.impute)) partial.impute=match.call(expand.dots=TRUE)$partial.impute else partial.impute=tsgs.ctrl$partial.impute
+             if(hasArg(tol)) tol=match.call(expand.dots=TRUE)$tol else tol=tsgs.ctrl$tol
+             if(hasArg(maxiter)) maxiter=match.call(expand.dots=TRUE)$maxiter else maxiter=tsgs.ctrl$maxiter
+             if(hasArg(loss)) loss=match.call(expand.dots=TRUE)$loss else loss=tsgs.ctrl$loss
+             if(hasArg(init)) init=match.call(expand.dots=TRUE)$init else init=tsgs.ctrl$init
              
              
              rbTSGS <- tsgs.moments(R=tmpR, filter=filter,
                                     partial.impute=partial.impute, 
                                     tol=tol, maxiter=maxiter, method=loss,
-                                    init=init, control=control)
+                                    init=init, control=tsgs.control)
            }
         
     ) # end switch for fitting models based on method
