@@ -228,6 +228,7 @@ set.portfolio.moments <- set.portfolio.moments_v2 <- function(R,
              if(hasArg(seed)) seed=match.call(expand.dots=TRUE)$seed else seed=mcd.ctrl$seed
              if(hasArg(tolSolve)) tolSolve=match.call(expand.dots=TRUE)$tolSolve else tolSolve=mcd.ctrl$tolSolve
              if(hasArg(wgtFUN)) wgtFUN=match.call(expand.dots=TRUE)$wgtFUN else wgtFUN=mcd.ctrl$wgtFUN
+             if(hasArg(use.correction)) use.correction=match.call(expand.dots=TRUE)$use.correction else use.correction=mcd.ctrl$use.correction
              
              
              rbMCD <- MCD.robust.moment(R, alpha=alpha, nsamp=nsamp, 
@@ -253,7 +254,7 @@ set.portfolio.moments <- set.portfolio.moments_v2 <- function(R,
              
              rbTSGS <- tsgs.moments(R=tmpR, filter=filter,
                                     partial.impute=partial.impute, 
-                                    tol=tol, maxiter=maxiter, method=loss,
+                                    tol=tol, maxiter=maxiter, loss=loss,
                                     init=init, control=tsgs.control)
            }
         

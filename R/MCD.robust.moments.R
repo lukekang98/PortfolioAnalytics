@@ -19,7 +19,7 @@
 #'              For "deterministic", the deterministic MCD is computed; 
 #'              as proposed by Hubert et al. (2012) it starts from the h most 
 #'              central observations of six (deterministic) estimators.
-#' @param nmini,kimi for n >= 2*n0, n0 := nmini, the algorithm splits the data 
+#' @param nmini,kmini for n >= 2*n0, n0 := nmini, the algorithm splits the data 
 #'                    into maximally kmini (by default 5) subsets, of size approximately, 
 #'                    but at least nmini. When nmini*kmini < n, the initial search 
 #'                    uses only a subsample of size nmini*kmini. The original algorithm 
@@ -43,18 +43,21 @@
 #' @export
 #'
 #' @examples
-MCD.robust.moment <- function(R, alpha, nsamp, nmini, kmini,
-                              scalefn, maxcsteps, initHsets=NULL, 
-                              seed, tolSolve, wgtFUN, 
-                              use.correction, control=mcd.control()){
+MCD.robust.moment <- function(R, alpha=control$alpha, nsamp=control$nsamp, 
+                              nmini=control$nmini, kmini=control$kmini,
+                              scalefn=control$scalefn, maxcsteps=control$maxcsteps, 
+                              initHsets=NULL, 
+                              seed=control$seed, tolSolve=control$tolSolve, 
+                              wgtFUN=control$wgtFUN, 
+                              use.correction=control$use.correction, 
+                              control=mcd.control()){
   
   robustMCD <- robustbase::covMcd(x=R,
-         alpha=alpha, nsamp=nsamp, nmini=nmini, kmini=kmini,
-         scalefn=scalefn, maxcsteps=maxcsteps,
-         initHsets=initHsets, seed=seed, tolSolve=tolSolve,
-         wgtFUN=wgtFUN, control=control, use.correction=use.correction)
+         alpha=alpha, nsamp=nsamp, nmini=nmini, kmini=kmini, seed=seed,
+         tolSolve=tolSolve, scalefn=scalefn, maxcsteps=maxcsteps,
+         initHsets=initHsets,  wgtFUN=wgtFUN, use.correction=use.correction)
   
-  return(list(rbMCD.Mu = robustMCD$center, rbMCD.Sig = robustMCD$cov))
+  return(list(alpha = control, rbMCD.Mu = robustMCD$center, rbMCD.Sig = robustMCD$cov))
 }
 
 #' @title 
