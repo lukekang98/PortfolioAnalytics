@@ -9,8 +9,7 @@ set.portfolio.moments(
   R,
   portfolio,
   momentargs = NULL,
-  method = c("sample", "boudt", "black_litterman", "meucci", "robust", "robustMCD",
-    "TSGS"),
+  method = c("sample", "boudt", "black_litterman", "meucci", "covRob", "covMCD", "TSGS"),
   ...
 )
 }

@@ -6,17 +6,17 @@
 \usage{
 MCD.robust.moment(
   R,
-  alpha,
-  nsamp,
-  nmini,
-  kmini,
-  scalefn,
-  maxcsteps,
+  alpha = control$alpha,
+  nsamp = control$nsamp,
+  nmini = control$nmini,
+  kmini = control$kmini,
+  scalefn = control$scalefn,
+  maxcsteps = control$maxcsteps,
   initHsets = NULL,
-  seed,
-  tolSolve,
-  wgtFUN,
-  use.correction,
+  seed = control$seed,
+  tolSolve = control$tolSolve,
+  wgtFUN = control$wgtFUN,
+  use.correction = control$use.correction,
   control = mcd.control()
 )
 }
@@ -38,7 +38,7 @@ For "deterministic", the deterministic MCD is computed;
 as proposed by Hubert et al. (2012) it starts from the h most 
 central observations of six (deterministic) estimators.}
 
-\item{nmini, kimi}{for n >= 2*n0, n0 := nmini, the algorithm splits the data 
+\item{nmini, kmini}{for n >= 2*n0, n0 := nmini, the algorithm splits the data 
 into maximally kmini (by default 5) subsets, of size approximately, 
 but at least nmini. When nmini*kmini < n, the initial search 
 uses only a subsample of size nmini*kmini. The original algorithm 
