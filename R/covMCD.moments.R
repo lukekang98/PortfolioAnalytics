@@ -43,19 +43,21 @@
 #' @export
 #'
 #' @examples
-MCD.robust.moment <- function(R, alpha=control$alpha, nsamp=control$nsamp, 
+covMCD.moment <- function(R, cor=FALSE, raw.only=FALSE,
+                          alpha=control$alpha, nsamp=control$nsamp, 
                               nmini=control$nmini, kmini=control$kmini,
                               scalefn=control$scalefn, maxcsteps=control$maxcsteps, 
-                              initHsets=NULL, 
+                              initHsets=NULL, save.hsets=FALSE, names=FALSE,
                               seed=control$seed, tolSolve=control$tolSolve, 
-                              wgtFUN=control$wgtFUN, 
+                              trace=FALSE, wgtFUN=control$wgtFUN, 
                               use.correction=control$use.correction, 
-                              control=mcd.control()){
+                              control=covMCD.control()){
   
-  robustMCD <- robustbase::covMcd(x=R,
+  robustMCD <- robustbase::covMcd(x=R, cor=cor, raw.only=raw.only,
          alpha=alpha, nsamp=nsamp, nmini=nmini, kmini=kmini, seed=seed,
-         tolSolve=tolSolve, scalefn=scalefn, maxcsteps=maxcsteps,
-         initHsets=initHsets,  wgtFUN=wgtFUN, use.correction=use.correction)
+         tolSolve=tolSolve, trace=trace, scalefn=scalefn, maxcsteps=maxcsteps,
+         initHsets=initHsets, save.hsets=save.hsets, names=names,
+         wgtFUN=wgtFUN, use.correction=use.correction)
   
   return(list(alpha = control, rbMCD.Mu = robustMCD$center, rbMCD.Sig = robustMCD$cov))
 }
@@ -100,7 +102,7 @@ MCD.robust.moment <- function(R, alpha=control$alpha, nsamp=control$nsamp,
 #' @export
 #'
 #' @examples
-mcd.control <-
+covMCD.control <-
   function(alpha = 1/2,
            nsamp = 500, nmini = 300, kmini = 5,
            scalefn = "hrv2012", maxcsteps = 200,

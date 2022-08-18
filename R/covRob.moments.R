@@ -1,5 +1,5 @@
 
-#' @title Compute moments using robust methods
+#' @title Compute moments using covRob methods
 #'
 #' @description 
 #' This is a function that makes use of covRob from package RobStatTM to calculate
@@ -21,7 +21,7 @@
 #' 
 #' @example 
 #' 
-robust.moments <- function(R, type="auto", maxit=50, tol=1e-4){
+covRob.moments <- function(R, type="auto", maxit=50, tol=1e-4){
   
   robustCov <- RobStatTM::covRob(X=R, type=type, maxit=maxit, tol=tol)
 
