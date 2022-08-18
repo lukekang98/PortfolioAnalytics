@@ -214,10 +214,10 @@ set.portfolio.moments <- set.portfolio.moments_v2 <- function(R,
              if(hasArg(type)) type=match.call(expand.dots=TRUE)$type else type="auto"
              if(hasArg(tol)) tol=match.call(expand.dots=TRUE)$tol else tol=1e-4
              if(hasArg(maxit)) maxit=match.call(expand.dots=TRUE)$maxit else maxit=50
-             rb <- robust.moments(R=tmpR, type=type, maxit=maxit, tol=tol)
+             rb <- covRob.moments(R=tmpR, type=type, maxit=maxit, tol=tol)
            },
            covMCD = {
-             if(hasArg(mcd.ctrl)) mcd.ctrl=match.call(expand.dots=TRUE)$mcd.ctrl else mcd.ctrl=mcd.control()
+             if(hasArg(mcd.ctrl)) mcd.ctrl=match.call(expand.dots=TRUE)$mcd.ctrl else mcd.ctrl=covMCD.control()
              if(hasArg(alpha)) alpha=match.call(expand.dots=TRUE)$alpha else alpha=mcd.ctrl$alpha
              if(hasArg(nsamp)) nsamp=match.call(expand.dots=TRUE)$nsamp else nsamp=mcd.ctrl$nsamp
              if(hasArg(nmini)) nmini=match.call(expand.dots=TRUE)$nmini else nmini=mcd.ctrl$nmini
@@ -231,7 +231,7 @@ set.portfolio.moments <- set.portfolio.moments_v2 <- function(R,
              if(hasArg(use.correction)) use.correction=match.call(expand.dots=TRUE)$use.correction else use.correction=mcd.ctrl$use.correction
              
              
-             rbMCD <- MCD.robust.moment(R, alpha=alpha, nsamp=nsamp, 
+             rbMCD <- covMCD.moment(R, alpha=alpha, nsamp=nsamp, 
                                         nmini=nmini, kmini=kmini,
                                         scalefn=scalefn, maxcsteps=maxcsteps, 
                                         initHsets=initHsets, 
