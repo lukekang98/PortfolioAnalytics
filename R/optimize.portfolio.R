@@ -524,6 +524,30 @@ optimize.portfolio_v1 <- function(
 #' Because these convex optimization problem are standardized, there is no need for a penalty term. 
 #' The \code{multiplier} argument in \code{\link{add.objective}} passed into the complete constraint object are ingnored by the ROI solver.
 #'
+#' If \code{optimize_method="CVXR"} is specified, the default solver will be \code{SCS}.
+#' The CVXR solvers includes SCS and ECOS and can be specified.
+#' For example, \code{optimize_method = "ECOS"} can be specified and the optimization
+#' problem will be solved via CVXR using the ECOS solver.
+#' 
+#' The extension to CVXR solves a limited type of convex optimization problems:
+#' \itemize{
+#' \item{Maxmimize portfolio return subject leverage, box, group, and/or target mean return constraints}
+#' \item{Minimize portfolio variance subject to leverage, box, group, and/or target mean return constraints (otherwise known as global minimum variance portfolio).}
+#' \item{Maximize quadratic utility subject to leverage, box, group, and/or target mean return constraints and risk aversion parameter.
+#' (The default risk aversion is 1, and specified risk aversion could be given by \code{risk_aversion = 1}. 
+#' The risk aversion parameter is passed into \code{optimize.portfolio} as an added argument to the \code{portfolio} object.)}
+#' \item{Minimize portfolio ES/ETL/CVaR optimization subject to leverage, box, group, and/or target mean return constraints and tail probability parameter.
+#' (The default tail probability is 0.05, and specified tail probability could be given by \code{arguments = list(p=0.95)}.
+#' The tail probability parameter is passed into \code{optimize.portfolio} as an added argument to the \code{portfolio} object.)}
+#' \item{Minimize portfolio EQS optimization subject to leverage, box, group, and/or target mean return constraints and tail probability parameter.
+#' (The default tail probability is 0.05, and specified tail probability could be given by \code{arguments = list(p=0.95)}.
+#' The tail probability parameter is passed into \code{optimize.portfolio} as an added argument to the \code{portfolio} object.)}
+#' }
+#' 
+#' Because these convex optimization problem are standardized, there is no need for a penalty term. 
+#' The \code{multiplier} argument in \code{\link{add.objective}} passed into the complete constraint object are ingnored by the CVXR solver.
+#'
+#'
 #' @note
 #' An object of class \code{v1_constraint} can be passed in for the \code{constraints} argument.
 #' The \code{v1_constraint} object was used in the previous 'v1' specification to specify the 
@@ -626,7 +650,7 @@ optimize.portfolio <- optimize.portfolio_v2 <- function(
   portfolio=NULL,
   constraints=NULL,
   objectives=NULL,
-  optimize_method=c("DEoptim","random","ROI","pso","GenSA", "Rglpk", "osqp", "mco"),
+  optimize_method=c("DEoptim","random","ROI","pso","GenSA", "Rglpk", "osqp", "mco", "CVXR", "SCS", "ECOS"),
   search_size=20000,
   trace=FALSE, ...,
   rp=NULL,
@@ -2746,6 +2770,158 @@ optimize.portfolio <- optimize.portfolio_v2 <- function(
     }
   } ## end case for mco
   
+  ## case if method = CVXR
+  cvxr_solvers <- c("SCS", "OSQP", "ECOS")
+  if (optimize_method == "CVXR" || optimize_method %in% cvxr_solvers) {
+    ## search for required package
+    stopifnot("package:CVXR" %in% search() || requireNamespace("CVXR", quietly = TRUE))
+    cvxr_solver = ifelse(optimize_method == "CVXR", "SCS", optimize_method)
+    
+    ## variables
+    X <- as.matrix(R)
+    wts <- Variable(N)
+    z <- Variable(T)
+    
+    # objective type
+    target = -Inf
+    reward <- FALSE
+    risk <- FALSE
+    r_measure <- FALSE
+    socp <- FALSE
+    alpha <- 0.05
+    lambda <- 1
+    
+    valid_objnames <- c("mean", "var", "sd", "StdDev", "CVaR", "ES", "ETL", "EQS") ## xinran "HHI", 
+    for (objective in portfolio$objectives) {
+      if (objective$enabled) {
+        if (!(objective$name %in% valid_objnames)) {
+          stop("CVXR only solves mean, var/sd/StdDev and ETL/ES/CVaR/EQS type business objectives, 
+                 choose a different optimize_method.")
+        }
+        # alpha
+        alpha <- ifelse(!is.null(objective$arguments[["p"]]), objective$arguments[["p"]], alpha)
+        lambda <- ifelse(!is.null(objective$risk_aversion), objective$risk_aversion, lambda)
+        
+        # return target
+        target <- ifelse(!is.null(objective$target), objective$target, target)
+        
+        # optimization objective function
+        reward <- ifelse(objective$name == "mean", TRUE, reward)
+        risk <- ifelse(objective$name %in% valid_objnames[2:4], TRUE, risk)
+        r_measure <- ifelse(objective$name %in% valid_objnames[5:7], TRUE, r_measure)
+        socp <- ifelse(objective$name == "EQS", TRUE, socp)
+        arguments <- objective$arguments
+      }
+    }
+    if(alpha > 0.5) alpha <- (1 - alpha)
+    
+    mean_value <- mout$mu
+    sigma_value <- mout$sigma
+    
+    if(reward & !risk){
+      obj <- -t(mean_value) %*% wts
+      constraints_cvxr = list()
+      tmpname = "mean"
+    } else if(risk & !reward){
+      obj <- quad_form(wts, sigma_value)
+      constraints_cvxr = list()
+      tmpname = "StdDev"
+    } else if(reward & risk){
+      obj <- quad_form(wts, sigma_value) - (t(mean_value) %*% wts) / lambda
+      constraints_cvxr = list()
+      tmpname = "optimal value"
+    } else if(r_measure & !socp){
+      zeta <- Variable(1)
+      obj <- zeta + (1/(T*alpha)) * sum(z)
+      constraints_cvxr = list(z >= 0, z >= -X %*% wts - zeta)
+      tmpname = "ES"
+    } else if(!r_measure & socp){
+      zeta <- Variable(1)
+      obj <- zeta + (1/alpha) * p_norm(z, p=2)
+      constraints_cvxr = list(z >= 0, z >= -X %*% wts - zeta)
+      tmpname = "EQS"
+    }
+    
+    # constraint type
+    ## weight sum constraint
+    if(!is.null(constraints$max_sum) & !is.infinite(constraints$max_sum) & constraints$max_sum - constraints$min_sum <= 0.001){
+      constraints_cvxr = append(constraints_cvxr, sum(wts) == constraints$max_sum)
+    } else{
+      if(!is.null(constraints$max_sum)){
+        max_sum <- ifelse(is.infinite(constraints$max_sum), 9999.0, constraints$max_sum)
+        constraints_cvxr = append(constraints_cvxr, sum(wts) <= max_sum)
+      }
+      if(!is.null(constraints$min_sum)){
+        min_sum <- ifelse(is.infinite(constraints$min_sum), -9999.0, constraints$min_sum)
+        constraints_cvxr = append(constraints_cvxr, sum(wts) >= min_sum)
+      }
+    }
+    
+    ## box constraint
+    upper <- constraints$max
+    lower <- constraints$min
+    upper[which(is.infinite(upper))] <- 9999.0
+    lower[which(is.infinite(lower))] <- -9999.0
+    
+    constraints_cvxr = append(constraints_cvxr, wts >= lower)
+    constraints_cvxr = append(constraints_cvxr, wts <= upper)
+    
+    ## group constraint
+    i = 1
+    for(g in constraints$groups){
+      constraints_cvxr = append(constraints_cvxr, sum(wts[g]) >= constraints$cLO[i])
+      constraints_cvxr = append(constraints_cvxr, sum(wts[g]) <= constraints$cUP[i])
+      i = i + 1
+    }
+    
+    ## target return constraint
+    if(!is.null(constraints$return_target)){
+      constraints_cvxr = append(constraints_cvxr, t(mean_value) %*% wts >= constraints$return_target)
+    }
+    
+    ## diversification constraint HHI
+    ## constraints_cvxr = append(constraints_cvxr, quad_form(wts, diag(N)) >= 0.02)
+    
+    ## turnover constraint ROI cannot
+    ## transaction cost constraint ROI cannot
+    
+    ## factor exposure constraint is not realized in PA
+    # constraints_cvxr = append(constraints_cvxr, wts >= constraints$B - constraints$lower)
+    # constraints_cvxr = append(constraints_cvxr, wts <= constraints$B + constraints$upper)
+    
+    # problem
+    prob_cvxr <- Problem(Minimize(obj),
+                        constraints = constraints_cvxr)
+    
+    result_cvxr <- CVXR::solve(prob_cvxr, solver = cvxr_solver)
+    
+    cvxr_wts <- result_cvxr$getValue(wts)
+    cvxr_wts <- as.vector(cvxr_wts)
+    cvxr_wts <- normalize_weights(cvxr_wts)
+    names(cvxr_wts) <- colnames(R)
+    
+    obj_cvxr <- list()
+    if(reward & !risk){
+      obj_cvxr[[tmpname]] <- -result_cvxr$value
+    } else if (risk & !reward){
+      obj_cvxr[[tmpname]] <- sqrt(result_cvxr$value)
+    } else if (reward & risk){
+      obj_cvxr[[tmpname]] <- result_cvxr$value
+      obj_cvxr[["mean"]] <- cvxr_wts %*% mean_value
+      obj_cvxr[["StdDev"]] <- sqrt(t(cvxr_wts) %*% sigma_value %*% cvxr_wts)
+    } else {
+      obj_cvxr[[tmpname]] <- result_cvxr$value
+    }
+    
+    out = list(weights = cvxr_wts,
+               objective_measures = obj_cvxr,
+               opt_values=obj_cvxr,
+               out = obj_cvxr[[tmpname]],
+               call = call)
+    
+    optimize_method = "CVXR"
+  }## end case for CVXR
+  
   # Prepare for final object to return
   end_t <- Sys.time()
   # print(c("elapsed time:",round(end_t-start_t,2),":diff:",round(diff,2), ":stats: ", round(out$stats,4), ":targets:",out$targets))
@@ -2924,7 +3100,7 @@ optimize.portfolio.rebalancing_v1 <- function(R,constraints,optimize_method=c("D
 #' rolling_window=48)
 #' }
 #' @export
-optimize.portfolio.rebalancing <- function(R, portfolio=NULL, constraints=NULL, objectives=NULL, optimize_method=c("DEoptim","random","ROI"), search_size=20000, trace=FALSE, ..., rp=NULL, rebalance_on=NULL, training_period=NULL, rolling_window=NULL)
+optimize.portfolio.rebalancing <- function(R, portfolio=NULL, constraints=NULL, objectives=NULL, optimize_method=c("DEoptim", "random", "ROI", "CVXR"), search_size=20000, trace=FALSE, ..., rp=NULL, rebalance_on=NULL, training_period=NULL, rolling_window=NULL)
 {
   stopifnot("package:foreach" %in% search() || requireNamespace("foreach",quietly=TRUE))
   stopifnot("package:iterators" %in% search() || requireNamespace("iterators",quietly=TRUE))
@@ -3106,7 +3282,7 @@ optimize.portfolio.rebalancing <- function(R, portfolio=NULL, constraints=NULL, 
 #' @export
 optimize.portfolio.parallel <- function(R,
                                         portfolio,
-                                        optimize_method=c("DEoptim","random","ROI","pso","GenSA"),
+                                        optimize_method=c("DEoptim","random","ROI","pso","GenSA","CVXR"),
                                         search_size=20000,
                                         trace=FALSE, ...,
                                         rp=NULL,
