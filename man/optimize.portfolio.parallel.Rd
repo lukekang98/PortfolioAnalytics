@@ -7,7 +7,7 @@
 optimize.portfolio.parallel(
   R,
   portfolio,
-  optimize_method = c("DEoptim", "random", "ROI", "pso", "GenSA"),
+  optimize_method = c("DEoptim", "random", "ROI", "pso", "GenSA", "CVXR"),
   search_size = 20000,
   trace = FALSE,
   ...,

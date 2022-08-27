@@ -23,7 +23,7 @@ optimize.portfolio.rebalancing(
   portfolio = NULL,
   constraints = NULL,
   objectives = NULL,
-  optimize_method = c("DEoptim", "random", "ROI"),
+  optimize_method = c("DEoptim", "random", "ROI", "CVXR"),
   search_size = 20000,
   trace = FALSE,
   ...,
