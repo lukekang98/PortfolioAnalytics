@@ -108,10 +108,7 @@ export(constraint_v1)
 export(constraint_v2)
 export(covMCD.control)
 export(covMCD.moment)
-<<<<<<< HEAD
 export(covRob.moments)
-=======
->>>>>>> f95b0a457fc9137d368781d34a5e9cc286a32f8f
 export(create.EfficientFrontier)
 export(diversification)
 export(diversification_constraint)

@@ -47,12 +47,12 @@
 covMCD.moment <- function(R, cor=FALSE, raw.only=FALSE,
                           alpha=control$alpha, nsamp=control$nsamp, 
                           nmini=control$nmini, kmini=control$kmini,
-                              scalefn=control$scalefn, maxcsteps=control$maxcsteps, 
-                              initHsets=NULL, save.hsets=FALSE, names=FALSE,
-                              seed=control$seed, tolSolve=control$tolSolve, 
-                              trace=FALSE, wgtFUN=control$wgtFUN, 
-                              use.correction=control$use.correction, 
-                              control=covMCD.control()){
+                          scalefn=control$scalefn, maxcsteps=control$maxcsteps, 
+                          initHsets=NULL, save.hsets=FALSE, names=FALSE,
+                          seed=control$seed, tolSolve=control$tolSolve, 
+                          trace=FALSE, wgtFUN=control$wgtFUN, 
+                          use.correction=control$use.correction, 
+                          control=covMCD.control()){
   
   robustMCD <- robustbase::covMcd(x=R, cor=cor, raw.only=raw.only,
          alpha=alpha, nsamp=nsamp, nmini=nmini, kmini=kmini, seed=seed,
