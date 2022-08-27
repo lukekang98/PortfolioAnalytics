@@ -43,8 +43,8 @@
 #' @export
 #'
 #' @examples
-covMCD.moment <- function(R, cor=FALSE, raw.only=FALSE,
-                          alpha=control$alpha, nsamp=control$nsamp, 
+
+covMCD.moment <- function(R, alpha=control$alpha, nsamp=control$nsamp,
                               nmini=control$nmini, kmini=control$kmini,
                               scalefn=control$scalefn, maxcsteps=control$maxcsteps, 
                               initHsets=NULL, save.hsets=FALSE, names=FALSE,
