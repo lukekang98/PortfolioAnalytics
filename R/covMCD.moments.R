@@ -44,8 +44,9 @@
 #'
 #' @examples
 
-covMCD.moment <- function(R, alpha=control$alpha, nsamp=control$nsamp,
-                              nmini=control$nmini, kmini=control$kmini,
+covMCD.moment <- function(R, cor=FALSE, raw.only=FALSE,
+                          alpha=control$alpha, nsamp=control$nsamp, 
+                          nmini=control$nmini, kmini=control$kmini,
                               scalefn=control$scalefn, maxcsteps=control$maxcsteps, 
                               initHsets=NULL, save.hsets=FALSE, names=FALSE,
                               seed=control$seed, tolSolve=control$tolSolve, 
